@@ -1,17 +1,28 @@
 'use strict';
 
-const { Client } = require('pg');
+var mysql = require('mysql')
 
-const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false
-    }
-});
+var connection = mysql.createConnection({
+    host: 'chargingstations.mysql.database.azure.com',
+    user: 'adminch',
+    password: 'qwer1234!',
+    database: 'chargingstations'
+    //host: process.env.host,
+    //user: process.env.user,
+    //password: process.env.password,
+    //database: process.env.database"
+})
 
-client.connect((err) => {
+connection.connect((err) => {
     if (err)
         throw err;
 });
 
-module.exports = client
+connection.query('SELECT * FROM ACCOUNT', function (err, rows) {
+    if (err) throw err
+  
+    console.log('The solution is: ', rows[0])
+  })
+
+//module.exports = client
+connection.end()
