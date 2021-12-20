@@ -13,29 +13,30 @@ const logInController = require('../controller/log-in-controller');
 
 router.route('/').get((req, res) => { res.redirect('/home') });
 router.route('/login').get(logInController.checkAuthenticated, logInController.showLogInForm);
-//Αυτή η διαδρομή καλείται όταν η φόρμα φτάσει με POST και διεκπεραιώνει τη σύνδεση
 router.route('/login').post(logInController.doLogin);
-//Αποσυνδέει το χρήστη
 router.route('/logout').get(logInController.doLogout);
-//FIXME θεωρεί πως POST στο /register σημαίνει πως ο χρήστης δεν είναι συνδεδεμένος
 router.post('/register', logInController.doRegister);
-
 
 
 router.route('/home').get(logInController.checkAuthenticated, chessController.getHomePage);
 
-//router.get('/home', chessController.getHomePage)
-//chessController.checkIfFinifhed, 
+// post location, radious
+router.post('/map', ChStationsController.ChargingStationsInArea)
+// post user/company id
+router.post('/user/info', ChStationsController.getUserInfo)
+router.post('/company/info', ChStationsController.getCompanyInfo)
 
-router.get('/lobby', logInController.checkAuthenticated, chessController.getLobby)
-router.get('/lobby/users', logInController.checkAuthenticated, chessController.findUserNames)
-router.get('/lobby/findGame', logInController.checkAuthenticated, chessController.searchGame)
-router.get('/newGame', logInController.checkAuthenticated, chessController.getNewGame)
-router.get('/newGame/info', logInController.checkAuthenticated, chessController.getInfo)
-router.post('/newGame/plays', chessController.makeMove)
-router.get('/newGame/opponentMove', chessController.opponentMove)
-router.get('/newGame/checkmate', chessController.checkmate)
-router.get('/newGame/draw', chessController.draw)
+router.get('/evs', ChStationsController.getAvailableEvs)
+router.get('/')
+
+// post user id, comment/review/checkIn/favorite_id
+router.post('/user/comment', ChStationsController.addComment)
+router.post('/user/review', ChStationsController.addReview)
+router.post('/user/checkIn', ChStationsController.addCheckIn)
+router.post('/user/favorite/station', ChStationsController.addFavoriteStation)
+router.post('/user/favorite/company', ChStationsController.addFavoriteCompany)
+
+
 
 router.get('/playerStats', logInController.checkAuthenticated, chessController.getAllStats)
 router.get('/openings', logInController.checkAuthenticated, chessController.getOpenings)
