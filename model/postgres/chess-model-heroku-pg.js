@@ -118,10 +118,16 @@ exports.registerUser = function (username, password, email, callback) {
     })
 }
 
-//Game 
 
-exports.searchWaitingPlayer = (callback) => {
-    sql.query("SELECT player_id1 FROM participates WHERE player_id2 IS NULL", (err, result) => {
+exports.getChargersInArea = (location,radious, callback) => {
+    console.log(location)
+    console.log(radious)
+    const query = {
+        text: "SELECT * FROM stations WHERE latitude < $1+$3 AND longitude < $2+$3"+
+                "AND latitude > $1-$3 AND longitude > $2-$3",
+        values: [location.lat, location.lon, radious],
+    }
+    sql.query(query, (err, result) => {
         if (err)
             callback(err.stack)
         else {
@@ -129,6 +135,12 @@ exports.searchWaitingPlayer = (callback) => {
         }
     })
 }
+
+
+
+
+//Game 
+
 exports.searchOpponent = (boardId, userId, callback) =>{
     console.log("boardId ", boardId)
     console.log("userId ", userId)
@@ -149,37 +161,6 @@ exports.searchOpponent = (boardId, userId, callback) =>{
         }
     })
 }
-exports.createWaitingPlayer = (userid, callback) => {
-    const query = {
-        text: "INSERT INTO challenge (player_id) VALUES ($1) RETURNING player_id",
-        values: [userid],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-            //setTimeout(callback, fakeDelay, err.stack, null);
-        else {
-            callback(null, result.rows[0].player_id)
-            //setTimeout(callback, fakeDelay, null, result.rows[0].player_id)
-        }
-    })
-}
-exports.deleteChallenge = (userid, callback) => {
-    const query = {
-        text: "DELETE FROM challenge WHERE player_id = ($1)",
-        values: [userid],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            setTimeout(callback, fakeDelay, err.stack, null);
-        else {
-            setTimeout(callback, fakeDelay, null, 'success')
-        }
-    })
-}
-
-
-
 exports.searchMoveset = (callback) => {
     console.log('got into searchMoveset')
     sql.query("SELECT moveset FROM game", (err, result) => {
@@ -240,114 +221,6 @@ exports.opponentMove = (board, lastPos, callback) => {
                 callback(null, 0)
             else
                 callback(null, result.rows[0].position)
-        }
-    })
-}
-
-
-exports.makeMove = (board, pos, move, callback) => {
-    console.log('got into makeMove')
-    const query = {
-        text: "UPDATE game SET moveset = array_append(moveSet, $1), position = $2 WHERE board_id = $3",
-        values: [move, pos, board],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else {
-            console.log(result.rows)
-            callback(null, result.rows)
-        }
-    })
-}
-exports.getInfo = (board, userId, callback) => {
-    const query = {
-        text: "SELECT player_id1, player_id2 FROM participates WHERE board_id = $1 ORDER BY board_id LIMIT 1",
-        values: [board],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else 
-        if(result.rows){
-            if (result.rows[0].player_id1 == userId){
-                callback(null, 'white')
-            }
-            else{
-                callback(null, 'black')
-            }
-        }
-        else console.log(result.rows)
-    })
-}
-exports.checkIfFinifhed = (board, callback) => {
-    const query = {
-        text: "SELECT state FROM game WHERE board_id = $1 ORDER BY board_id LIMIT 1",
-        values: [board],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else{
-            callback(null, result.rows[0])
-        }
-    })
-}
-
-
-exports.checkmate = (board, winner, callback) => {
-    const query = {
-        text: "UPDATE game SET state = $1 WHERE board_id = $2",
-        values: [winner, board]
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else
-            callback(null, 'checkmate')
-    })
-}
-exports.draw = (board, callback) => {
-    const query = {
-        text: "UPDATE game SET state = 'draw' WHERE board_id = $1",
-        values: [board]
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else
-            callback(null, 'draw')
-    })
-}
-
-
-exports.countWins = (userId, callback) => {
-    const query = {
-        text: "SELECT COUNT(*) FROM game JOIN participates ON game.board_id = participates.board_id WHERE state= $1 AND (player_id1=$1 OR player_id2=$1)",
-        values: [userId],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else{
-            console.log(result.rows)
-            console.log(result.rows[0])
-            callback(null, result.rows[0])
-        }
-    })
-}
-exports.countTotalGames = (userId, callback) => {
-    const query = {
-        text: "SELECT COUNT(*) FROM game JOIN participates ON game.board_id = participates.board_id WHERE state != 'active' AND (player_id1=$1 OR player_id2=$1)",
-        values: [userId],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else{
-            console.log(result.rows)
-            console.log(result.rows[0])
-            callback(null, result.rows[0])
         }
     })
 }

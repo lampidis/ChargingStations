@@ -38,10 +38,10 @@ router.post('/user/favorite/company', ChStationsController.addFavoriteCompany)
 
 
 
-router.get('/playerStats', logInController.checkAuthenticated, chessController.getAllStats)
-router.get('/openings', logInController.checkAuthenticated, chessController.getOpenings)
-router.get('/selfAnalyzing', logInController.checkAuthenticated, chessController.getSelfAnalyzing)
-router.get('/endings', logInController.checkAuthenticated, chessController.getEndings)
-router.get('/puzzles', logInController.checkAuthenticated, chessController.getPuzzles)
+// router.get('/playerStats', logInController.checkAuthenticated, chessController.getAllStats)
+// router.get('/openings', logInController.checkAuthenticated, chessController.getOpenings)
+// router.get('/selfAnalyzing', logInController.checkAuthenticated, chessController.getSelfAnalyzing)
+// router.get('/endings', logInController.checkAuthenticated, chessController.getEndings)
+// router.get('/puzzles', logInController.checkAuthenticated, chessController.getPuzzles)
 
 module.exports = router;

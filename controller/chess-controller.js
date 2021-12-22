@@ -6,40 +6,23 @@ const url = require('url');
 const model = require('../model/postgres/chess-model-heroku-pg.js');
 
 
+exports.ChargingStationsInArea = function (req, res) {
+    req.on('data', function (data) {
+    var location = data.toString().split('&')[0].split('=')[1]
+    var radious = data.toString().split('&')[1].split('=')[1]
 
-exports.getHomePage = (req, res) => {
-    console.log("getHomePage")
-    res.render('index')
+    model.getChargersInArea(location,radious, (err, result) => {
+        if (err) {
+            console.error('registration error: ' + err);
+            //FIXME: δε θα έπρεπε να περνάμε το εσωτερικό σφάλμα στον χρήστη
+            //res.render('login', { message: err });
+        }
+        else {
+            res.status(200).json({ chargingstations: result });
+        }
+    })
+})
 }
-exports.getAllStats = (req, res) => {
-    console.log("getAllStats")
-    res.render('user');
-}
-exports.getOpenings = (req, res) => {
-    console.log("getOpenings")
-    res.render('openings')
-}
-exports.getSelfAnalyzing = (req, res) => {
-    console.log("selfAnalyzing")
-    res.render('self_analyzing')
-}
-exports.getEndings = (req, res) => {
-    console.log("getEndings")
-    res.render('endings')
-}
-exports.getPuzzles = (req, res) => {
-    console.log("getPuzzles")
-    res.render('index')
-}
-exports.getNewGame = (req, res) => {
-    console.log("newGame")
-    res.render('newgame', {player1 : req.session.opponentname, player2 : req.session.playername})
-}
-exports.getLobby = (req, res) => {
-    console.log("getLobby")
-    res.render('lobby')
-}
-
 
 
 exports.makeMove = (req,res) => {
