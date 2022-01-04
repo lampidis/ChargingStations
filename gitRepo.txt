@@ -1,2 +1,2 @@
 git repository : https://github.com/lampidis/ChargingStations
-heroku-app url https://my-chess-db.herokuapp.com/
+site url : 

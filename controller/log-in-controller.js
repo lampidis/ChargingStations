@@ -2,16 +2,18 @@
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 
-const model = require('../model/postgres/chess-model-heroku-pg.js');
+const model = require('../model/postgres/chstations_model.js');
 
 
 exports.showLogInForm = function (req, res) {
+    console.log("got into showLogInForm")
     model.connect((err, result) => {
         res.render('login', {layout: 'loginlayout.hbs', message: err})
     })
 }
 
 exports.doRegister = function (req, res) {
+    console.log("got into doRegister")
     req.on('data', function (data) {
         var userName = data.toString().split('&')[0].split('=')[1]
         var password = data.toString().split('&')[1].split('=')[1]
@@ -34,6 +36,7 @@ exports.doRegister = function (req, res) {
 }
 
 exports.doLogin = function (req, res) {
+    console.log("got into doLogin")
     //Ελέγχει αν το username και το password είναι σωστά και εκτελεί την
     //συνάρτηση επιστροφής authenticated
     
@@ -56,6 +59,7 @@ exports.doLogin = function (req, res) {
 }
 
 exports.doLogout = (req, res) => {
+    console.log("got into doLogout")
     //Σημειώνουμε πως ο χρήστης δεν είναι πια συνδεδεμένος
     req.session.destroy();
     res.redirect('/');
@@ -63,6 +67,7 @@ exports.doLogout = (req, res) => {
 
 //Τη χρησιμοποιούμε για να ανακατευθύνουμε στη σελίδα /login όλα τα αιτήματα από μη συνδεδεμένςου χρήστες
 exports.checkAuthenticated = function (req, res, next) {
+    console.log("got into checkAuthenticated")
     //Αν η μεταβλητή συνεδρίας έχει τεθεί, τότε ο χρήστης είναι συνεδεμένος
     if (req.session.loggedUserId) {
         console.log("user is authenticated", req.originalUrl);
