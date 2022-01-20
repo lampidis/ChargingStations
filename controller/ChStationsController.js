@@ -5,7 +5,10 @@ const url = require('url');
 
 const model = require('../model/postgres/chstations_model.js');
 
-
+exports.Home = function (req, res) {
+    console.log("got into Home")
+    res.status(200).json({reply : "Got into server!... try post request /map"})
+}
 exports.ChargingStationsInArea = function (req, res) {
     console.log("got into ChargingStationsInArea")
     req.on('data', function (data) {

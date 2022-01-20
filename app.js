@@ -5,7 +5,6 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express')
 var bodyParser = require('body-parser');
 const app = express()
-const exphbs = require('express-handlebars');
 const session = require("express-session");
 const path = require('path');
 const url = require('url');

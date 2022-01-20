@@ -11,7 +11,7 @@ const logInController = require('../controller/log-in-controller');
 
 //router.get('/move/:moveId', chessListController.move)
 
-router.route('/').get((req, res) => { res.redirect('/map') });
+router.route('/').get((req, res) => { res.redirect('/home') });
 router.route('/login').get(logInController.checkAuthenticated, logInController.showLogInForm);
 router.route('/login').post(logInController.doLogin);
 router.route('/logout').get(logInController.doLogout);
@@ -20,6 +20,7 @@ router.post('/register', logInController.doRegister);
 
 //router.route('/home').get(logInController.checkAuthenticated, chessController.getHomePage);
 
+router.get('/home', ChStationsController.Home)
 // post location, radious
 router.post('/map', ChStationsController.ChargingStationsInArea)
 // post user/company id
