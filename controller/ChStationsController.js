@@ -1,5 +1,6 @@
 'use strict';
 
+const { resolve } = require('path/posix');
 const { nextTick } = require('process');
 const url = require('url');
 
@@ -96,191 +97,117 @@ exports.postComment = function (req, res) {
     })
 }
 
-exports.makeMove = (req,res) => {
-    console.log("player id ",req.session.loggedUserId, " makeMove")
+
+exports.addCharger = function (req, res) {
+    console.log("got into addCharger")
     let body = ''
-    //saving post data into variable body
     req.on('data', chunk=>{
-        body += chunk.toString()
+        body = chunk.toString()
     })
     req.on('end', () => {
-        var postData = JSON.parse(body)
-        console.log('postData', postData)
-        model.makeMove(req.session.board_id, postData.curPos, postData.lastMove, (err, col) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                req.session.lastPosition = postData.curPos
-                req.session.save(function(err) {
-                    // session saved
-                  })
-                res.status(200).json({ status: "success" });
-            }
-        });
-    })
-}
-exports.getInfo = (req, res) => {
-    console.log("getInfo")
-    if(req.session.board_id){
-        model.getInfo(req.session.board_id, req.session.loggedUserId, (err, col) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                res.status(200).json({ board_id: req.session.board_id, colour: col });
-            }
-        });
-    }
-}
-// exports.opponentMove = (req, res) => {
-//     console.log("opponentMove")
-//     if(req.session.board_id){
-//         model.opponentMove(req.session.board_id, req.session.lastPosition, (err, position) => {
-//             if (err) {
-//                 console.log(err.message);
-//             }
-//             else {
-//                 res.status(200).json({ newPos: position });
-//             }
-//         });
-//     }
-// }
-exports.searchGame = (req, res) => {
-    console.log("lobby")
-    model.searchWaitingPlayer((err, waitingPlayer) => {
-        if (err){
-            console.log(err.message);
-        }else if(waitingPlayer){
-                var chall_id = waitingPlayer.player_id1
-                console.log("waiting player found -> player id ", chall_id)
+        console.log(body)
+        var d = JSON.parse(body)
 
-                model.updateGame(req.session.loggedUserId, chall_id, (err, response) => {
-                    if (err) {
-                        console.log(err)
-                    }
-                    else {
-                        if(response){
-                            console.log('response id', response.board_id)
-                            req.session.board_id = response.board_id
-                            req.session.save(function(err) {
-                                // session saved
-                              })
-                    }
-                        else
-                        console.log('response is ', response)
-                    }
-                })
-        }
-        else{
-            model.createGame(req.session.loggedUserId, (err, board) => {
-                if (err){
-                    console.log(err);
-                } else
-                req.session.board_id = board
-                console.log("Game created -> board id ", board)
-                req.session.save(function(err) {
-                    // session saved
-                  })
-            })
-        }
-        
-    });
-}
-exports.findUserNames = (req, res) => {
-    model.searchOpponent(req.session.board_id, req.session.loggedUserId, (err, opponent_id) => {
-        if (err) {
-            console.log(err)
-        }
-        else {
-            let chall_id = opponent_id
-            model.getUserById(req.session.loggedUserId, (err, loguser) => {
+        var type = d.type
+        var name = d.name
+        var lat = d.lat
+        var lon = d.lon
+        var schedule = d.schedule
+        var restrooms = d.restrooms
+        var cost = d.cost
+        var kW = d.kW
+        var quantity = d.quantity
+
+        var chStationId
+
+
+
+        new Promise( (resolve, reject) =>{
+            model.getChargingType(type, (err, result) => {
                 if (err) {
-                    console.log(err)
+                    console.error('getChargingType error: ' + err)
+                    reject("error")
+                    return
                 }
-                else {
-                    req.session.playername = loguser.username
-                    req.session.opponent_id = chall_id
-                    model.getUserById(chall_id, (err, user) => {
+                var hasChargingType = result
+                console.log('typeof hasChargingType ' + typeof hasChargingType)
+                if (typeof hasChargingType == 'undefined'){
+                    console.log("adding ch type !!!")
+                    model.addChargingType(type, (err, result) => {
                         if (err) {
-                            console.log(err)
+                            console.error('addChargingType error: ' + err)
+                            reject("error")
+                            return
                         }
-                        else {
-                            if(user){
-                                req.session.opponentname  = user.username
-                                console.log("playername ", req.session.playername)
-                                console.log("opponentname ", req.session.opponentname)
-                                res.status(200).json({ playername: req.session.playername, opponentname: req.session.opponentname });
-                            }
-                            else
-                                res.status(200).json({ playername: false, opponentname: false });
-                        }
-                    })
-                }
+                        console.log('res add chType ' + result)
+                    })}
+                else console.log("already added type !!!")
+                resolve();
             })
-        }
-    })
-}
-exports.checkIfFinifhed = (req, res, next) => {
-    console.log("checkIfFinifhed")
-        model.checkIfFinifhed(req.session.board_id, (err, response) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else if (response.state == 'active') next();
-            else if (response.state == req.session.opponent_id.toString())
-                res.status(200).json({newPos: 'lost'});
-            else{
-                res.status(200).json({newPos: response.state});
-            }
-        });
-}
-
-
-exports.checkmate = (req, res) => {
-    console.log("checkmate")
-        model.checkmate(req.session.board_id, req.session.loggedUserId, (err, response) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                res.status(200).json({res: response});
-            }
-        });
-}
-exports.draw = (req, res) => {
-    console.log("draw")
-        model.draw(req.session.board_id, (err, response) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                res.status(200).json({res: response});
-            }
-        });
-}
-
-exports.opponentMove = (req, res) => {
-    console.log("opponentMove")
-    
-    if(req.session.board_id){
-        model.opponentMove(req.session.board_id, req.session.lastPosition, (err, position) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                model.checkIfFinifhed(req.session.board_id, (err, response) => {
+        }).then(function() {
+            console.log("Starting 1st then() ... ")
+            new Promise( (resolve, reject) => {
+                model.getChargingStation(lat, lon, (err, result) => {
+                if (err) {
+                    console.error('getChargingStation error: ' + err)
+                    reject("error")
+                    return
+                }
+                var hasChargingStation = result
+                console.log('typeof hasChargingStation ' + typeof hasChargingStation)
+                if (typeof hasChargingStation == 'undefined'){
+                    console.log("adding ch station...")
+                    model.addChargingStation(name, lat, lon, schedule, restrooms, (err, result) => {
+                        if (err) {
+                            console.error('addChargingStation error: ' + err)
+                            reject("error")
+                            return
+                        }
+                        console.log('res add chStation ' + result)
+                        resolve()
+                    })}
+                else resolve()
+            })
+        }).then(function() {
+            console.log("Starting 2nd then() ... ")
+            new Promise((resolve, reject) => {model.getChargingStation(lat, lon, (err, result) => {
+                if (err) {
+                    console.error('getChargingStation error: ' + err)
+                    reject("error")
+                    return
+                }
+                chStationId = result.station_id
+                resolve(chStationId)
+                })
+            }).then(function() {
+                console.log("Starting 3nd then() ... ")
+                new Promise((resolve, reject) => {model.getCharger(type, chStationId, (err, result) => {
                     if (err) {
-                        console.log(err.message);
+                        console.error('getCharger error: ' + err)
+                        reject("error")
+                        return
                     }
-                    else{
-                        let gstatus = response.state
-                        if (response.state == req.session.opponent_id.toString()) gstatus='lost'
-                        if (response.state == req.session.loggedUserId.toString()) gstatus='win'
-                        res.status(200).json({ newPos: position , gameStatus: gstatus});
-                    }
-                });
-            }
-        });
-    }
+                    var hasCharger = result
+                    console.log('typeof hasChargingStation ' + typeof hasCharger)
+                    if (typeof hasCharger != 'undefined')
+                        res.status(200).send("charger already in database with id: "+ hasCharger.charger_id)
+                    else resolve(chStationId)
+                    })
+                }).then(function(chStationId) {
+                    console.log("Starting 4rd then() ... ", chStationId)
+                    model.addCharger(cost, kW, quantity, type, chStationId, (err, result) => {
+                        if (err) {
+                            console.error('addCharger error: ' + err)
+                            return
+                        }
+                        console.log('res add Charger ' + result)
+                        res.status(200).send("charger added")
+                    })
+                })
+            })
+        })
+    })
+        
+        
+    })
 }

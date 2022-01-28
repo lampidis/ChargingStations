@@ -35,6 +35,7 @@ router.post('/user/comment', ChStationsController.postComment)
 // router.post('/user/favorite/station', ChStationsController.addFavoriteStation)
 // router.post('/user/favorite/company', ChStationsController.addFavoriteCompany)
 
+router.post('/addCharger', ChStationsController.addCharger)
 
 
 module.exports = router;

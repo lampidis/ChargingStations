@@ -175,106 +175,95 @@ exports.getAvailableEvs = (callback) => {
 
 
 exports.addComment = function (comment, userId, stationId, callback) {
-    try {
-       var query = 'INSERT INTO comment (user_id, station_id, comment) VALUES (?,?,?)'
-       var values = [userId, stationId,comment]
+    var query = 'INSERT INTO comment (user_id, station_id, comment) VALUES (?,?,?)'
+    var values = [userId, stationId,comment]
 
-       sql.query(query, values, (err, result) => {
-           if (err)
-               setTimeout(callback, fakeDelay, err.stack, null);
-           else {
-               setTimeout(callback, fakeDelay, null, "comment sent")
-           }
-       })
-   } catch (err) {
-       console.log(err)
-       callback(err)
-   }
-}
-
-
-//Game 
-
-exports.searchOpponent = (boardId, userId, callback) =>{
-    console.log("boardId ", boardId)
-    console.log("userId ", userId)
-    const query = {
-        text: "SELECT player_id1, player_id2 FROM participates WHERE board_id = $1",
-        values: [boardId],
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
-        else {
-            if(result.rows[0]){
-                if(userId == result.rows[0].player_id1)
-                    callback(null, result.rows[0].player_id2)
-                else
-                    callback(null, result.rows[0].player_id1)
-            }
-        }
-    })
-}
-exports.searchMoveset = (callback) => {
-    console.log('got into searchMoveset')
-    sql.query("SELECT moveset FROM game", (err, result) => {
-        if (err)
-            callback(err.stack)
-        else {
-            console.log('q1', result.rows)
-            console.log('q2', result.rows[0])
-            console.log('q3', result.rows[0].moveset)
-            callback(null, result.rows[0])
-        }
-    })
-}
-exports.createGame = (p1, callback) => {
-    sql.query("INSERT INTO game (datetime, state) VALUES (CURRENT_TIMESTAMP, 'active') RETURNING board_id", (err, board) => {
+    sql.query(query, values, (err, result) => {
         if (err)
             setTimeout(callback, fakeDelay, err.stack, null);
         else {
-            const query = {
-                text: "INSERT INTO participates (board_id, player_id1) VALUES ($1, $2) RETURNING board_id",
-                values: [board.rows[0].board_id, p1],
-            }
-            sql.query(query, (err, result) => {
-                if (err)
-                    setTimeout(callback, fakeDelay, err.stack, null);
-                else {
-                    console.log('Created game board id ', result.rows[0].board_id)
-                    setTimeout(callback, fakeDelay, null, result.rows[0].board_id)
-                }
-            })
+            setTimeout(callback, fakeDelay, null, "comment sent")
         }
     })
 }
-exports.updateGame = (p2, p1, callback) => {
-    const query = {
-        text: "UPDATE participates SET player_id2 = $1 WHERE player_id1 = $2 AND player_id2 IS NULL RETURNING board_id",
-        values: [p2, p1]
-    }
-    sql.query(query, (err, result) => {
+
+
+
+exports.getChargingType = function(type, callback) {
+    //sql.query('SELECT * FROM CHARGING_TYPE', (err, result)=>{
+    sql.query('SELECT * FROM CHARGING_TYPE WHERE type = ?', type, (err, result)=>{
         if (err)
-            callback(err.stack)
-        else
-            callback(null, result.rows[0])
-    })
-}
-exports.opponentMove = (board, lastPos, callback) => {
-    console.log('got into opponentMove')
-    const query = {
-        text: "SELECT position FROM game WHERE board_id = $1",
-        values: [board]
-    }
-    sql.query(query, (err, result) => {
-        if (err)
-            callback(err.stack)
+            setTimeout(callback, fakeDelay, err.stack, null);
         else {
-            console.log(result.rows[0])
-            if(result.rows[0].position == lastPos)
-                callback(null, 0)
-            else
-                callback(null, result.rows[0].position)
+            console.log("type result: ", result[0])
+            setTimeout(callback, fakeDelay, null, result[0])
         }
     })
 }
+
+exports.getChargingStation = function(lat, lon, callback) {
+    sql.query('SELECT station_id FROM CHARGING_STATION WHERE latitude = ? AND longitude = ?', [lat, lon], (err, result)=>{
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else {
+            console.log("station result: ", result[0])
+            setTimeout(callback, fakeDelay, null, result[0])
+        }
+    })
+}
+
+exports.getCharger = function(type, station_id, callback) {
+    sql.query('SELECT charger_id FROM CHARGER WHERE type = ? AND station_id = ?', [type, station_id], (err, result)=>{
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else {
+            console.log("station result: ", result[0])
+            setTimeout(callback, fakeDelay, null, result[0])
+        }
+    })
+}
+
+exports.addChargingType = function(type, callback) {
+    var query = 'INSERT INTO CHARGING_TYPE (`type`) VALUES (?)'
+    var values = [type]
+    sql.query(query, values, (err, result) => {
+        if (err){
+            console.log('charging_type error')
+            setTimeout(callback, fakeDelay, err.stack, null);
+        }
+        else {
+            console.log("charging type added: ", result[0])
+        }
+    })
+}
+
+exports.addChargingStation = function(name, lat, lon, schedule, restrooms, callback) {
+    var query = 'INSERT INTO CHARGING_STATION (`name`,`latitude`, `longitude`,`schedule`,`nearby_restrooms`) VALUES (?,?,?,?,?)'
+    var values = [name, lat, lon, schedule, restrooms]
+    sql.query(query, values, (err, result) => {
+        if (err){
+            console.log('charging_station error')
+            setTimeout(callback, fakeDelay, err.stack, null);
+        }
+        else {
+            console.log("charging station added: ", result[0])
+            setTimeout(callback, fakeDelay, null, "done");
+        }
+    })
+}
+
+exports.addCharger = function(cost, kW, quantity, type, st_id, callback) {
+    var query = 'INSERT INTO CHARGER (`status`,`cost`, `kW`, `quantity`, `type`, `station_id`) VALUES (?,?,?,?,?,?)'
+    var values = ["free", cost,  kW, quantity, type, st_id]
+    sql.query(query, values, (err, result) => {
+        if (err){
+            console.log('charger error')
+            setTimeout(callback, fakeDelay, err.stack, null);
+        }
+        else {
+            setTimeout(callback, fakeDelay, null, "charger added: ", result[0])
+        }
+    })
+}
+
+

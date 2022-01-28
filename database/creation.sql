@@ -50,10 +50,11 @@ CREATE TABLE `CHARGER` (
 
 CREATE TABLE `CHARGING_STATION` (
 	`station_id` INT NOT NULL AUTO_INCREMENT,
-	`latitude` float NOT NULL,
-	`longitude` float NOT NULL,
-	`notes` varchar(255),
+	`name` varchar(255),
+	`latitude` double NOT NULL,
+	`longitude` double NOT NULL,
 	`schedule` varchar(255),
+	`notes` varchar(255),
 	`weather` varchar(255),
 	`nearby_restrooms` varchar(255),
 	`photos_rep` varchar(255),
