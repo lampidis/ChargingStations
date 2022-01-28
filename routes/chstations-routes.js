@@ -12,9 +12,9 @@ const logInController = require('../controller/log-in-controller');
 //router.get('/move/:moveId', chessListController.move)
 
 router.route('/').get((req, res) => { res.redirect('/home') });
-router.route('/login').get(logInController.checkAuthenticated, logInController.showLogInForm);
-router.route('/login').post(logInController.doLogin);
-router.route('/logout').get(logInController.doLogout);
+router.get('/login', logInController.checkAuthenticated, logInController.showLogInForm);
+router.post('/login', logInController.doLogin);
+router.get('/logout', logInController.doLogout);
 router.post('/register', logInController.doRegister);
 
 
@@ -23,6 +23,7 @@ router.post('/register', logInController.doRegister);
 router.get('/home', ChStationsController.Home)
 // post location, radious
 router.post('/map', ChStationsController.ChargingStationsInArea)
+router.post('/chStation/info', ChStationsController.ChargingStationInfo)
 // post user/company id
 router.get('/user/info', ChStationsController.getUserInfo)
 router.get('/company/info', ChStationsController.getCompanyInfo)
@@ -37,5 +38,9 @@ router.post('/user/comment', ChStationsController.postComment)
 
 router.post('/addCharger', ChStationsController.addCharger)
 
+// requests from simulator
+router.get('/sim/getRandUser' , ChStationsController.randUser)
+router.post('/sim/startCharging' , ChStationsController.startCharging)
+router.post('/sim/endCharging' , ChStationsController.endCharging)
 
 module.exports = router;

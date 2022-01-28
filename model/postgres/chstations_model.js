@@ -73,7 +73,7 @@ exports.getUserById = (userId, callback) => {
 }
 exports.getUserByUsernamePassword = (username, password, callback) => {
     const query = {
-        text: 'SELECT player_id, username, password FROM PLAYER WHERE username = $1 AND password = $2 ORDER BY username LIMIT 1',
+        text: 'SELECT user_id, username, password FROM ACCOUNT WHERE username = ? AND password = ? ORDER BY username LIMIT 1',
         values: [username, password],
     }
     sql.query(query, (err, user) => {
@@ -118,26 +118,50 @@ exports.registerUser = function (username, password, email, callback) {
     })
 }
 
-exports.getChargersInArea = function (location, radious, callback) {
-     try {
-        //const hashedPassword = await bcrypt.hash(password, 10);
-        //console.log(location)
-        var query = 'SELECT * FROM charging_station WHERE longitude>? AND longitude <? AND latitude>? AND latitude <?'
-        var values = [location.lon - radious, location.lon + radious,
-            location.lat - radious, location.lat + radious]
 
-        sql.query(query, values, (err, result) => {
-            if (err)
-                setTimeout(callback, fakeDelay, err.stack, null);
-            else {
-                setTimeout(callback, fakeDelay, null, result)
-            }
-        })
-    } catch (err) {
-        console.log(err)
-        callback(err)
-    }
+
+exports.getChargersInArea = function (location, radious, callback) {
+    var query = 'SELECT * FROM charging_station WHERE longitude>? AND longitude <? AND latitude>? AND latitude <?'
+    var values = [location.lon - radious, location.lon + radious,
+        location.lat - radious, location.lat + radious]
+
+    sql.query(query, values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else {
+            setTimeout(callback, fakeDelay, null, result)
+        }
+    })
 }
+
+exports.getChargingStationInfo = function (chstation_id, callback) {
+    var query = 'SELECT * FROM charging_station WHERE station_id=?'
+    var values = chstation_id
+
+    sql.query(query, values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else {
+            setTimeout(callback, fakeDelay, null, result)
+        }
+    })
+}
+exports.getChargerInfo = function (chstation_id, callback) {
+    var query = 'SELECT charger_id,status,cost,kW,quantity,available,type FROM charger WHERE station_id=?'
+    var values = chstation_id
+
+    sql.query(query, values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else {
+            setTimeout(callback, fakeDelay, null, result)
+        }
+    })
+}
+
+
+
+
 exports.getUserInfo = (user_id, callback) => {
     console.log('user_id: ' + user_id)
     const query = "SELECT * FROM ACCOUNT WHERE USER_ID = ?"
@@ -200,7 +224,6 @@ exports.getChargingType = function(type, callback) {
         }
     })
 }
-
 exports.getChargingStation = function(lat, lon, callback) {
     sql.query('SELECT station_id FROM CHARGING_STATION WHERE latitude = ? AND longitude = ?', [lat, lon], (err, result)=>{
         if (err)
@@ -211,9 +234,8 @@ exports.getChargingStation = function(lat, lon, callback) {
         }
     })
 }
-
 exports.getCharger = function(type, station_id, callback) {
-    sql.query('SELECT charger_id FROM CHARGER WHERE type = ? AND station_id = ?', [type, station_id], (err, result)=>{
+    sql.query('SELECT * available FROM CHARGER WHERE type = ? AND station_id = ?', [type, station_id], (err, result)=>{
         if (err)
             setTimeout(callback, fakeDelay, err.stack, null);
         else {
@@ -222,7 +244,6 @@ exports.getCharger = function(type, station_id, callback) {
         }
     })
 }
-
 exports.addChargingType = function(type, callback) {
     var query = 'INSERT INTO CHARGING_TYPE (`type`) VALUES (?)'
     var values = [type]
@@ -236,7 +257,6 @@ exports.addChargingType = function(type, callback) {
         }
     })
 }
-
 exports.addChargingStation = function(name, lat, lon, schedule, restrooms, callback) {
     var query = 'INSERT INTO CHARGING_STATION (`name`,`latitude`, `longitude`,`schedule`,`nearby_restrooms`) VALUES (?,?,?,?,?)'
     var values = [name, lat, lon, schedule, restrooms]
@@ -251,10 +271,9 @@ exports.addChargingStation = function(name, lat, lon, schedule, restrooms, callb
         }
     })
 }
-
-exports.addCharger = function(cost, kW, quantity, type, st_id, callback) {
-    var query = 'INSERT INTO CHARGER (`status`,`cost`, `kW`, `quantity`, `type`, `station_id`) VALUES (?,?,?,?,?,?)'
-    var values = ["free", cost,  kW, quantity, type, st_id]
+exports.addCharger = function(cost, kW, quantity, available, type, st_id, callback) {
+    var query = 'INSERT INTO CHARGER (`status`,`cost`, `kW`, `quantity`, `available`, `type`, `station_id`) VALUES (?,?,?,?,?,?,?)'
+    var values = ["free", cost,  kW, quantity, available, type, st_id]
     sql.query(query, values, (err, result) => {
         if (err){
             console.log('charger error')
@@ -267,3 +286,25 @@ exports.addCharger = function(cost, kW, quantity, type, st_id, callback) {
 }
 
 
+
+
+exports.getRandUser = (callback) => {
+    const query = "SELECT ACCOUNT.user_id, ACCOUNT.username , EV.type, EV.car_company, EV.model FROM ACCOUNT INNER JOIN Posses ON ACCOUNT.user_id = Posses.user_id INNER JOIN EV ON Posses.car_id = EV.car_id"
+    sql.query(query, (err, result) => {
+        if (err)
+            callback(err.stack)
+        else {
+            callback(null, result)
+        }
+    })
+}
+exports.changeStatus = (callback) => {
+    const query = "UPDATE charger SET status = 'in use', available =  WHERE shipping = '0'"
+    sql.query(query, (err, result) => {
+        if (err)
+            callback(err.stack)
+        else {
+            callback(null, result)
+        }
+    })
+}

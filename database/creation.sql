@@ -43,6 +43,7 @@ CREATE TABLE `CHARGER` (
 	`cost` FLOAT,
 	`kW` FLOAT NOT NULL,
 	`quantity` INT NOT NULL,
+	`available` INT NOT NULL,
 	`type` varchar(255) NOT NULL,
 	`station_id` INT(255) NOT NULL,
 	PRIMARY KEY (`charger_id`)
@@ -70,6 +71,7 @@ CREATE TABLE `COMPANY` (
 CREATE TABLE `Posses` (
 	`user_id` INT NOT NULL,
 	`car_id` INT NOT NULL,
+	`battery` INT NOT NULL,
 	PRIMARY KEY (`user_id`,`car_id`)
 );
 
