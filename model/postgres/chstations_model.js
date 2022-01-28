@@ -235,9 +235,9 @@ exports.getChargingStation = function(lat, lon, callback) {
     })
 }
 exports.getCharger = function(type, station_id, callback) {
-    sql.query('SELECT * available FROM CHARGER WHERE type = ? AND station_id = ?', [type, station_id], (err, result)=>{
+    sql.query('SELECT * FROM CHARGER WHERE type = ? AND station_id = ?', [type, station_id], (err, result)=>{
         if (err)
-            setTimeout(callback, fakeDelay, err.stack, null);
+            setTimeout(callback, fakeDelay, err.stack, null)
         else {
             console.log("station result: ", result[0])
             setTimeout(callback, fakeDelay, null, result[0])
@@ -298,9 +298,25 @@ exports.getRandUser = (callback) => {
         }
     })
 }
-exports.changeStatus = (callback) => {
-    const query = "UPDATE charger SET status = 'in use', available =  WHERE shipping = '0'"
-    sql.query(query, (err, result) => {
+exports.useAvailable = (ch_id, av, callback) => {
+    var stat = 'in use'
+    if (av==0) stat='full'
+    const query = "UPDATE charger SET status = ?, available = ? WHERE charger_id = ?"
+    var values = [stat, av, ch_id]             
+    sql.query(query,values,(err, result) => {
+        if (err)
+            callback(err.stack)
+        else {
+            callback(null, result)
+        }
+    })
+}
+exports.freeAvailable = (ch_id, av, q, callback) => {
+    var stat = 'in use'
+    if (av==q) stat='free'
+    const query = "UPDATE charger SET status = ?, available = ? WHERE charger_id = ?"
+    var values = [stat, av, ch_id]             
+    sql.query(query,values,(err, result) => {
         if (err)
             callback(err.stack)
         else {

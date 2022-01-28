@@ -263,33 +263,71 @@ exports.randUser = function (req, res) {
 }
 exports.startCharging = function (req, res) {
     console.log("got into startCharging")
-    model.getCharger(type, chStation_id, (err, charger) => {
-        if (err) {
-            console.log('error: ' + err)
-        }
-        else {
-            console.log('get response ' + charger)
-            av = charger.available
-            if (av = 0)res.status(200).json({"response" : "charger is full"});
-
-            model.changeStatus(charger.charger_id, av-1, (err, result) => {
-                if (err) {
-                    console.log('error: ' + err)
-                }
-                else {
-                    console.log('get response ' + result)
-                    
-                    res.status(200).json(result);
-                }
-            })
-        }
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
     })
+    req.on('end', () => {
+        console.log(body)
+        var d = JSON.parse(body)
+        var type = d.type
+        var chStation_id = d.chStation_id
+        console.log(type, chStation_id)
+        model.getCharger(type, chStation_id, (err, charger) => {
+            if (err) {
+                console.log('error: ' + err)
+            }
+            else {
+                console.log('getCharger response ' + charger)
+                var av = charger.available
+                if (av == 0)res.status(200).json({"response" : "charger is full"});
 
-
-
-    
+                model.useAvailable(charger.charger_id, av-1, (err, result) => {
+                    if (err) {
+                        console.log('error: ' + err)
+                    }
+                    else {
+                        console.log('useAvailable response ' + result)
+                        res.status(200).json({"response" : "charger in use"});
+                    }
+                })
+            }
+        })
+    })
 }
 
 exports.endCharging = function (req, res) {
+    console.log("got into endCharging")
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        console.log(body)
+        var d = JSON.parse(body)
+        var type = d.type
+        var chStation_id = d.chStation_id
+        console.log(type, chStation_id)
+        model.getCharger(type, chStation_id, (err, charger) => {
+            if (err) {
+                console.log('error: ' + err)
+            }
+            else {
+                console.log('getCharger response ' + charger)
+                var av = charger.available
+                var q = charger.quantity
+                if (av == q)res.status(200).json({"response" : "charger is empty"});
 
+                model.freeAvailable(charger.charger_id, av+1, q, (err, result) => {
+                    if (err) {
+                        console.log('error: ' + err)
+                    }
+                    else {
+                        console.log('freeAvailable response ' + result)
+                        res.status(200).json({"response" : "charger freed"});
+                    }
+                })
+            }
+        })
+    })
 }
