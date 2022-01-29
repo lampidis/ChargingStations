@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "nodemon --inspect ./index.js",
     "start": "nodemon ./index.js",
     "watch": "nodemon ./index.js"
   },

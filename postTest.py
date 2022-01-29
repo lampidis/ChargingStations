@@ -1,6 +1,6 @@
 import requests
 
-post_url = 'http://localhost:3000'
+post_url = 'http://localhost:8080'
 d = {'user_id': 1,
     'comment': 'Nice place!',
     'review': 4,

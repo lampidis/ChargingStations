@@ -121,7 +121,7 @@ exports.registerUser = function (username, password, email, callback) {
 
 
 exports.getChargersInArea = function (location, radious, callback) {
-    var query = 'SELECT * FROM charging_station WHERE longitude>? AND longitude <? AND latitude>? AND latitude <?'
+    var query = 'SELECT charging_station.station_id,name,latitude,longitude,schedule,nearby_restrooms,SUM(quantity) AS total, SUM(available) AS av FROM charging_station LEFT JOIN charger ON  charging_station.station_id = charger.station_id WHERE longitude>? AND longitude <? AND latitude>? AND latitude <? GROUP BY charging_station.station_id'
     var values = [location.lon - radious, location.lon + radious,
         location.lat - radious, location.lat + radious]
 
@@ -234,13 +234,23 @@ exports.getChargingStation = function(lat, lon, callback) {
         }
     })
 }
-exports.getCharger = function(type, station_id, callback) {
-    sql.query('SELECT * FROM CHARGER WHERE type = ? AND station_id = ?', [type, station_id], (err, result)=>{
+exports.getCharger = function(type, st_id, callback) {
+    sql.query('SELECT * FROM CHARGER WHERE type = ? AND station_id = ?', [type, st_id], (err, result)=>{
         if (err)
             setTimeout(callback, fakeDelay, err.stack, null)
         else {
             console.log("station result: ", result[0])
             setTimeout(callback, fakeDelay, null, result[0])
+        }
+    })
+}
+exports.getChargersStatus = function(st_id, callback) {
+    sql.query('SELECT type, quantity, available FROM CHARGER WHERE station_id = ?', st_id, (err, result)=>{
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null)
+        else {
+            console.log("station result: ", result)
+            setTimeout(callback, fakeDelay, null, result)
         }
     })
 }
