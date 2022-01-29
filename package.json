@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "nodemon --inspect start.js",
-    "watch": "nodemon start.js"
+    "debug": "nodemon --inspect ./start.js",
+    "watch": "nodemon ./start.js"
   },
   "nodemonConfig": {
     "ignore": [

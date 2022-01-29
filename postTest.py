@@ -18,3 +18,6 @@ match(chose):
     case(7): res = requests.post(post_url + '/sim/endCharging', json=  {'type': 'CCS', 'chStation_id' : 1})
 
 print(res.text)
+
+
+#    "start": "nodemon ./start.js",
