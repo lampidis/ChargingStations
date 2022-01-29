@@ -52,5 +52,5 @@ jobs:
         with:
           app-name: 'EVPath'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_61FDCA7E38F548D5B022FBE7CE469267 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BA6A788B2B2D4078BDB6A48F73C5D216 }}
           package: .
