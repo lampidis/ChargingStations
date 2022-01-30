@@ -25,18 +25,18 @@ router.get('/home', ChStationsController.Home)
 router.post('/map', ChStationsController.ChargingStationsInArea)
 router.post('/chStation/info', ChStationsController.ChargingStationInfo)
 // post user/company id
-router.get('/user/info', ChStationsController.getUserInfo)
-router.get('/company/info', ChStationsController.getCompanyInfo)
+router.get('/user/info', ChStationsController.UserInfo)
+router.get('/company/info', ChStationsController.CompanyInfo)
 router.get('/evs', ChStationsController.AvailableEvs)
 
 // // post user id, comment/review/checkIn/favorite_id
 router.post('/user/comment', ChStationsController.postComment)
-// router.post('/user/review', ChStationsController.addReview)
-// router.post('/user/checkIn', ChStationsController.addCheckIn)
-// router.post('/user/favorite/station', ChStationsController.addFavoriteStation)
-// router.post('/user/favorite/company', ChStationsController.addFavoriteCompany)
+router.post('/user/review', ChStationsController.postReview)
+router.post('/user/checkIn', ChStationsController.postCheckIn)
+router.post('/user/favorite/station', ChStationsController.FavoriteStation)
+router.post('/user/favorite/company', ChStationsController.FavoriteCompany)
 
-router.post('/addCharger', ChStationsController.addCharger)
+router.post('/addCharger', ChStationsController.appendCharger)
 
 // requests from simulator
 router.get('/sim/getRandUser' , ChStationsController.randUser)

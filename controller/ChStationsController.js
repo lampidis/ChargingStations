@@ -25,10 +25,8 @@ exports.ChargingStationsInArea = function (req, res) {
         // var location = {lat : 38.25, lon : 21.74}
         // var radious = 0.01
 
-        model.getChargersInArea(location, radious, (err, result) => {
-            if (err) {
-                console.log('error: ' + err)
-            }
+        model.getChargingStationsInArea(location, radious, (err, result) => {
+            if (err) console.log('error: ' + err)
             else {
                 console.log('get response ' + result)
                 res.status(200).json({ chargingstations: result });
@@ -47,15 +45,11 @@ exports.ChargingStationInfo = function (req, res) {
         var chstation_id = JSON.parse(body).chStation_id
 
         model.getChargingStationInfo(chstation_id, (err, chs_result) => {
-            if (err) {
-                console.log('error: ' + err)
-            }
+            if (err) console.log('error: ' + err)
             else {
                 console.log('get getChargingStationInfo response ' + chs_result)
                 model.getChargerInfo(chstation_id, (err, ch_result) => {
-                    if (err) {
-                        console.log('error: ' + err)
-                    }
+                    if (err) console.log('error: ' + err)
                     else {
                         console.log('get getChargerInfo response ' + ch_result)
                         chs_result[0].chargers = ch_result
@@ -68,14 +62,33 @@ exports.ChargingStationInfo = function (req, res) {
 }
 
 
+exports.UserInfo = function (req, res) {
+    console.log("got into getUserInfo")
+    var user_id = 1;
+    model.getUserInfo(user_id, (err, result) => {
+        if (err) console.log('error: ' + err)
+        else {
+            console.log('get response ' + result)
+            res.status(200).json({ evs: result });
+        }
+    })
+}
+exports.CompanyInfo = function (req, res) {
+    console.log("got into getCompanyInfo")
+    var company_id = 1;
+    model.getCompanyInfo(company_id, (err, result) => {
+        if (err) console.log('error: ' + err)
+        else {
+            console.log('get response ' + result)
+            res.status(200).json({ evs: result });
+        }
+    })
+}
 exports.AvailableEvs = function (req, res) {
     console.log("got into AvailableEvs")
 
     model.getAvailableEvs((err, result) => {
-        if (err) {
-            console.log('error: ' + err)
-            console.error('registration error: ' + err);
-        }
+        if (err) console.log('error: ' + err)
         else {
             console.log('get response ' + result)
             res.status(200).json({ evs: result });
@@ -83,48 +96,98 @@ exports.AvailableEvs = function (req, res) {
     })
 //})
 }
-exports.getUserInfo = function (req, res) {
-    console.log("got into getUserInfo")
-    var user_id = 1;
-    model.getUserInfo(user_id, (err, result) => {
-        if (err) {
-            console.log('error: ' + err)
-            console.error('registration error: ' + err);
-        }
-        else {
-            console.log('get response ' + result)
-            res.status(200).json({ evs: result });
-        }
-    })
-}
-exports.getCompanyInfo = function (req, res) {
-    console.log("got into getCompanyInfo")
-    var company_id = 1;
-    model.getCompanyInfo(company_id, (err, result) => {
-        if (err) {
-            console.log('error: ' + err)
-            console.error('registration error: ' + err);
-        }
-        else {
-            console.log('get response ' + result)
-            res.status(200).json({ evs: result });
-        }
-    })
-}
+
 
 exports.postComment = function (req, res) {
     console.log("got into postComment")
-    req.on('data', function (data) {
-        var comment = data.toString().split('&')[0].split('=')[1]
-        var station_id = data.toString().split('&')[1].split('=')[1]
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        var station_id = JSON.parse(body).chStation_id
+        var comment = JSON.parse(body).comment
         var logged_user_id = 1 //req.session.loggedUserId
+
         model.addComment(comment, logged_user_id, station_id,(err, result) => {
-            if (err) {
-                console.log('error: ' + err)
-                console.error('registration error: ' + err);
-                //FIXME: δε θα έπρεπε να περνάμε το εσωτερικό σφάλμα στον χρήστη
-                //res.render('login', { message: err });
+            if (err) console.log('error: ' + err)
+            else {
+                console.log('get response ' + result)
+                res.status(200).json({ commentStatus: result });
             }
+        })
+    })
+}
+exports.postReview = function (req, res) {
+    console.log("got into postReview")
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        var station_id = JSON.parse(body).chStation_id
+        var review = JSON.parse(body).review
+        var logged_user_id = 1 //req.session.loggedUserId
+
+        model.addReview(review, logged_user_id, station_id,(err, result) => {
+            if (err) console.log('error: ' + err)
+            else {
+                console.log('get response ' + result)
+                res.status(200).json({ commentStatus: result });
+            }
+        })
+    })
+}
+exports.postCheckIn = function (req, res) {
+    console.log("got into postCheckIn")
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        var station_id = JSON.parse(body).chStation_id
+        var logged_user_id = 1 //req.session.loggedUserId
+
+        model.addCheckIn(logged_user_id, station_id,(err, result) => {
+            if (err) console.log('error: ' + err)
+            else {
+                console.log('get response ' + result)
+                res.status(200).json({ commentStatus: result });
+            }
+        })
+    })
+}
+exports.FavoriteStation = function (req, res) {
+    console.log("got into FavoriteStation")
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        var station_id = JSON.parse(body).chStation_id
+        var logged_user_id = 1 //req.session.loggedUserId
+
+        model.addFavoriteStation(logged_user_id, station_id,(err, result) => {
+            if (err) console.log('error: ' + err)
+            else {
+                console.log('get response ' + result)
+                res.status(200).json({ commentStatus: result });
+            }
+        })
+    })
+}
+exports.FavoriteCompany = function (req, res) {
+    console.log("got into FavoriteCompany")
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        var companyId = JSON.parse(body).companyId
+        var logged_user_id = 1 //req.session.loggedUserId
+
+        model.addFavoriteCompany(logged_user_id, companyId,(err, result) => {
+            if (err) console.log('error: ' + err)
             else {
                 console.log('get response ' + result)
                 res.status(200).json({ commentStatus: result });
@@ -134,7 +197,7 @@ exports.postComment = function (req, res) {
 }
 
 
-exports.addCharger = function (req, res) {
+exports.appendCharger = function (req, res) {
     console.log("got into addCharger")
     let body = ''
     req.on('data', chunk=>{
@@ -251,9 +314,7 @@ exports.addCharger = function (req, res) {
 exports.randUser = function (req, res) {
     console.log("got into randUser")
     model.getRandUser((err, result) => {
-        if (err) {
-            console.log('error: ' + err)
-        }
+        if (err) console.log('error: ' + err)
         else {
             console.log('get response ' + result)
             
@@ -274,18 +335,14 @@ exports.startCharging = function (req, res) {
         var chStation_id = d.chStation_id
         console.log(type, chStation_id)
         model.getCharger(type, chStation_id, (err, charger) => {
-            if (err) {
-                console.log('error: ' + err)
-            }
+            if (err) console.log('error: ' + err)
             else {
                 console.log('getCharger response ' + charger)
                 var av = charger.available
                 if (av == 0)res.status(200).json({"response" : "charger is full"});
 
                 model.useAvailable(charger.charger_id, av-1, (err, result) => {
-                    if (err) {
-                        console.log('error: ' + err)
-                    }
+                    if (err) console.log('error: ' + err)
                     else {
                         console.log('useAvailable response ' + result)
                         res.status(200).json({"response" : "charger in use"});
@@ -295,7 +352,6 @@ exports.startCharging = function (req, res) {
         })
     })
 }
-
 exports.endCharging = function (req, res) {
     console.log("got into endCharging")
     let body = ''
@@ -309,9 +365,7 @@ exports.endCharging = function (req, res) {
         var chStation_id = d.chStation_id
         console.log(type, chStation_id)
         model.getCharger(type, chStation_id, (err, charger) => {
-            if (err) {
-                console.log('error: ' + err)
-            }
+            if (err) console.log('error: ' + err)
             else {
                 console.log('getCharger response ' + charger)
                 var av = charger.available
@@ -319,9 +373,7 @@ exports.endCharging = function (req, res) {
                 if (av == q)res.status(200).json({"response" : "charger is empty"});
 
                 model.freeAvailable(charger.charger_id, av+1, q, (err, result) => {
-                    if (err) {
-                        console.log('error: ' + err)
-                    }
+                    if (err) console.log('error: ' + err)
                     else {
                         console.log('freeAvailable response ' + result)
                         res.status(200).json({"response" : "charger freed"});

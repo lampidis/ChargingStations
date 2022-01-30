@@ -119,8 +119,8 @@ exports.registerUser = function (username, password, email, callback) {
 }
 
 
-
-exports.getChargersInArea = function (location, radious, callback) {
+// Charging Stations 
+exports.getChargingStationsInArea = function (location, radious, callback) {
     var query = 'SELECT charging_station.station_id,name,latitude,longitude,schedule,nearby_restrooms,SUM(quantity) AS total, SUM(available) AS av FROM charging_station LEFT JOIN charger ON  charging_station.station_id = charger.station_id WHERE longitude>? AND longitude <? AND latitude>? AND latitude <? GROUP BY charging_station.station_id'
     var values = [location.lon - radious, location.lon + radious,
         location.lat - radious, location.lat + radious]
@@ -205,9 +205,52 @@ exports.addComment = function (comment, userId, stationId, callback) {
     sql.query(query, values, (err, result) => {
         if (err)
             setTimeout(callback, fakeDelay, err.stack, null);
-        else {
+        else 
             setTimeout(callback, fakeDelay, null, "comment sent")
-        }
+    })
+}
+exports.addReview = function (review, userId, stationId, callback) {
+    var query = 'INSERT INTO review (user_id, station_id, review) VALUES (?,?,?)'
+    var values = [userId, stationId,review]
+
+    sql.query(query, values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else 
+            setTimeout(callback, fakeDelay, null, "review sent")
+    })
+}
+exports.addCheckIn = function (userId, stationId, callback) {
+    var query = 'INSERT INTO Check_in (user_id, station_id) VALUES (?,?)'
+    var values = [userId, stationId]
+
+    sql.query(query, values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else 
+            setTimeout(callback, fakeDelay, null, "Check_in sent")
+    })
+}
+exports.addFavoriteStation = function (userId, stationId, callback) {
+    var query = 'INSERT INTO Fav_station (user_id, station_id) VALUES (?,?)'
+    var values = [userId, stationId]
+
+    sql.query(query, values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else 
+            setTimeout(callback, fakeDelay, null, "Fav_station sent")
+    })
+}
+exports.addFavoriteCompany = function (userId, companyId, callback) {
+    var query = 'INSERT INTO Fav_Company (user_id, company_id) VALUES (?,?)'
+    var values = [userId, companyId]
+
+    sql.query(query, values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
+        else 
+            setTimeout(callback, fakeDelay, null, "Check_in sent")
     })
 }
 
@@ -244,16 +287,16 @@ exports.getCharger = function(type, st_id, callback) {
         }
     })
 }
-exports.getChargersStatus = function(st_id, callback) {
-    sql.query('SELECT type, quantity, available FROM CHARGER WHERE station_id = ?', st_id, (err, result)=>{
-        if (err)
-            setTimeout(callback, fakeDelay, err.stack, null)
-        else {
-            console.log("station result: ", result)
-            setTimeout(callback, fakeDelay, null, result)
-        }
-    })
-}
+// exports.getChargersStatus = function(st_id, callback) {
+//     sql.query('SELECT type, quantity, available FROM CHARGER WHERE station_id = ?', st_id, (err, result)=>{
+//         if (err)
+//             setTimeout(callback, fakeDelay, err.stack, null)
+//         else {
+//             console.log("station result: ", result)
+//             setTimeout(callback, fakeDelay, null, result)
+//         }
+//     })
+// }
 exports.addChargingType = function(type, callback) {
     var query = 'INSERT INTO CHARGING_TYPE (`type`) VALUES (?)'
     var values = [type]
