@@ -19,11 +19,7 @@ exports.doRegister = function (req, res) {
         var password = data.toString().split('&')[1].split('=')[1]
         var email = data.toString().split('&')[2].split('=')[1]
         model.registerUser(userName, password, email, (err, result, message) => {
-            if (err) {
-                console.error('registration error: ' + err);
-                //FIXME: δε θα έπρεπε να περνάμε το εσωτερικό σφάλμα στον χρήστη
-                res.render('login', { message: err });
-            }
+            if (err) console.error('registration error: ' + err);
             else if (result) {
                 req.session.loggedUserId = result;
                 res.render('index')

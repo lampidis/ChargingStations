@@ -12,37 +12,38 @@ exports.connect = (callback) => {
 
 
 // Log in and Register 
-exports.registerUserNoPass = function (username, callback) {
-    // ελέγχουμε αν υπάρχει χρήστης με αυτό το username
-    exports.getUserByUsername(username, async (err, userId) => {
-        if (userId != undefined) {
-            callback(null, null, { message: "Υπάρχει ήδη χρήστης με αυτό το όνομα" })
-        } else {
-            try {
-                const query = {
-                    text: 'INSERT INTO public.user ( username, password) VALUES ( $1, $2) RETURNING id',
-                    values: [username, ""],
-                }
-                sql.query(query, (err, result) => {
-                    if (err)
-                        setTimeout(callback, fakeDelay, err.stack, null);
-                    else {
-                        //το query επιστρέφει μια γραμμή με τα αποτελέσματα της εισαγωγής
-                        //(αυτά που ζητήσαμε με το INSERT). Το "id" είναι το όνομα του πεδίου
-                        //που αυξάνει αυτόματα. Η result.rows[0].id μας επιστρέφει την τιμή του.
-                        setTimeout(callback, fakeDelay, null, result.rows[0].player_id)
-                    }
-                })
-            } catch (err) {
-                console.log(err)
-                callback(err)
-            }
-        }
-    })
-}
+
+// exports.registerUserNoPass = function (username, callback) {
+//     // ελέγχουμε αν υπάρχει χρήστης με αυτό το username
+//     exports.getUserByUsername(username, async (err, userId) => {
+//         if (userId != undefined) {
+//             callback(null, null, { message: "Υπάρχει ήδη χρήστης με αυτό το όνομα" })
+//         } else {
+//             try {
+//                 const query = {
+//                     text: 'INSERT INTO public.user ( username, password) VALUES ( $1, $2) RETURNING id',
+//                     values: [username, ""],
+//                 }
+//                 sql.query(query, (err, result) => {
+//                     if (err)
+//                         setTimeout(callback, fakeDelay, err.stack, null);
+//                     else {
+//                         //το query επιστρέφει μια γραμμή με τα αποτελέσματα της εισαγωγής
+//                         //(αυτά που ζητήσαμε με το INSERT). Το "id" είναι το όνομα του πεδίου
+//                         //που αυξάνει αυτόματα. Η result.rows[0].id μας επιστρέφει την τιμή του.
+//                         setTimeout(callback, fakeDelay, null, result.rows[0].player_id)
+//                     }
+//                 })
+//             } catch (err) {
+//                 console.log(err)
+//                 callback(err)
+//             }
+//         }
+//     })
+// }
 exports.getUserByUsername = (username, callback) => {
     const query = {
-        text: 'SELECT player_id, username, password FROM player WHERE username = $1 ORDER BY username LIMIT 1',
+        text: 'SELECT user_id, username, password FROM account WHERE username = ? ORDER BY username LIMIT 1',
         values: [username],
     }
     sql.query(query, (err, user) => {
@@ -55,22 +56,22 @@ exports.getUserByUsername = (username, callback) => {
         }
     })
 }
-exports.getUserById = (userId, callback) => {
-    console.log("userId ", userId)
-    const query = {
-        text: 'SELECT player_id, username, password FROM player WHERE player_id = $1 ORDER BY player_id LIMIT 1',
-        values: [userId],
-    }
-    sql.query(query, (err, user) => {
-        if (err) {
-            console.log(err.stack)
-            callback(err.stack)
-        }
-        else {
-            callback(null, user.rows[0])
-        }
-    })
-}
+// exports.getUserById = (userId, callback) => {
+//     console.log("userId ", userId)
+//     const query = {
+//         text: 'SELECT player_id, username, password FROM player WHERE player_id = $1 ORDER BY player_id LIMIT 1',
+//         values: [userId],
+//     }
+//     sql.query(query, (err, user) => {
+//         if (err) {
+//             console.log(err.stack)
+//             callback(err.stack)
+//         }
+//         else {
+//             callback(null, user.rows[0])
+//         }
+//     })
+// }
 exports.getUserByUsernamePassword = (username, password, callback) => {
     const query = {
         text: 'SELECT user_id, username, password FROM ACCOUNT WHERE username = ? AND password = ? ORDER BY username LIMIT 1',
@@ -93,22 +94,15 @@ exports.registerUser = function (username, password, email, callback) {
             callback(null, null, { message: "Υπάρχει ήδη χρήστης με αυτό το όνομα" })
         } else {
             try {
-                //const hashedPassword = await bcrypt.hash(password, 10);
-
                 const query = {
-                    text: 'INSERT INTO player (username, password, email) VALUES ( $1, $2, $3) RETURNING player_id',
+                    text: 'INSERT INTO account (username, password, email) VALUES (?,?,?) RETURNING user_id',
                     values: [username, password, email],
                 }
-
                 sql.query(query, (err, result) => {
                     if (err)
                         setTimeout(callback, fakeDelay, err.stack, null);
-                    else {
-                        //το query επιστρέφει μια γραμμή με τα αποτελέσματα της εισαγωγής
-                        //(αυτά που ζητήσαμε με το INSERT). Το "id" είναι το όνομα του πεδίου
-                        //που αυξάνει αυτόματα. Η result.rows[0].id μας επιστρέφει την τιμή του.
-                        setTimeout(callback, fakeDelay, null, result.rows[0].player_id)
-                    }
+                    else 
+                        setTimeout(callback, fakeDelay, null, result.rows[0].user_id)
                 })
             } catch (err) {
                 console.log(err)
