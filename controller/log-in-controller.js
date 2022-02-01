@@ -16,22 +16,17 @@ exports.doRegister = function (req, res) {
     console.log("got into doRegister")
     let body = ''
     req.on('data', chunk=>{
-        body = chunk.toString()
+        body = JSON.parse(chunk.toString())
     })
     req.on('end', () => {
         console.log(body)
-        var username = data.username
-        var password = data.password
-        var email = data.email
+        var username = body.username
+        var password = body.password
+        var email = body.email
         model.registerUser(username, password, email, (err, result, message) => {
             if (err) console.error('registration error: ' + err);
-            else if (result) {
-                req.session.loggedUserId = result;
-                res.render('index')
-            }
-            else {
-                res.redirect('login');
-            }
+            req.session.loggedUserId = result;
+            res.status(200).json({ result: result });
         })
     })
 }
@@ -40,23 +35,16 @@ exports.doLogin = function (req, res) {
     console.log("got into doLogin")
     let body = ''
     req.on('data', chunk=>{
-        body = chunk.toString()
+        body = JSON.parse(chunk.toString())
     })
     req.on('end', () => {
         console.log(body)
-        var username = data.username
-        var password = data.password
+        var username = body.username
+        var password = body.password
         model.getUserByUsernamePassword(username,password, (err, user) => {
-            if (user == undefined) {
-                res.render('login', {layout: 'loginlayout.hbs', message: 'Δε βρέθηκε αυτός ο χρήστης'});
-            }
-            else {
-                //Θέτουμε τη μεταβλητή συνεδρίας "loggedUserId"
-                req.session.loggedUserId = user.player_id;
-                //Αν έχει τιμή η μεταβλητή req.session.originalUrl, αλλιώς όρισέ τη σε "/" 
-                const redirectTo = req.session.originalUrl || "/home";
-                res.redirect(redirectTo);
-            }
+            if (user != undefined) req.session.loggedUserId = user.player_id;
+            res.status(200).json({ result: result });
+            
         })
     })
 }
