@@ -12,9 +12,9 @@ const logInController = require('../controller/log-in-controller');
 //router.get('/move/:moveId', chessListController.move)
 
 router.route('/').get((req, res) => { res.redirect('/home') });
-router.post('/login', logInController.doLogin);
+router.post('/login', logInController.doLogin, ChStationsController.UserInfo);
 router.get('/logout', logInController.doLogout);
-router.post('/register', logInController.doRegister);
+router.post('/register', logInController.doRegister, ChStationsController.UserInfo);
 
 
 //router.route('/home').get(logInController.checkAuthenticated, chessController.getHomePage);

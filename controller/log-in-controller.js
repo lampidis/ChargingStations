@@ -1,7 +1,7 @@
 'use strict';
+
 const bcrypt = require('bcrypt');
 const passport = require('passport');
-
 const model = require('../model/chstations_model.js');
 
 
@@ -12,7 +12,7 @@ exports.showLogInForm = function (req, res) {
     })
 }
 
-exports.doRegister = function (req, res) {
+exports.doRegister = function (req, res, next) {
     console.log("got into doRegister")
     let body = ''
     req.on('data', chunk=>{
@@ -24,27 +24,35 @@ exports.doRegister = function (req, res) {
         var password = body.password
         var email = body.email
         model.registerUser(username, password, email, (err, result) => {
+            console.log("last id: ", result)
             if (err) console.error('registration error: ' + err);
-            // req.session.loggedUserId = message;
-            res.status(200).json({ result: result });
+            else if(typeof result != "number")
+                res.status(200).json({ result: result });
+            else {
+                console.log("last id: ", result)
+                req.session.loggedUserId = result;
+                next()
+            }
         })
     })
 }
 
-exports.doLogin = function (req, res) {
+exports.doLogin = function (req, res, next) {
     console.log("got into doLogin")
     let body = ''
     req.on('data', chunk=>{
         body = JSON.parse(chunk.toString())
     })
     req.on('end', () => {
-        console.log(body)
         var username = body.username
         var password = body.password
         model.getUserByUsernamePassword(username,password, (err, user) => {
-            if (user != undefined) req.session.loggedUserId = user.user_id;
-            res.status(200).json({ result: user });
-            
+            console.log("user: ", user)
+            if (user === undefined) res.status(200).json({ result: "user not found" });
+            else {
+                req.session.loggedUserId = user.user_id;
+                next()
+            }
         })
     })
 }

@@ -23,15 +23,13 @@ exports.getUserByUsernameMail = (username, mail, callback) => {
 }
 exports.getUserByUsernamePassword = (username, password, callback) => {
     
-    const query = 'SELECT user_id, username, password FROM ACCOUNT WHERE username = ? AND password = ? ORDER BY username LIMIT 1'
+    const query = 'SELECT user_id, username, password FROM ACCOUNT WHERE username = ? AND password = ?'
     const values = [username, password]
-    sql.query(query,values, (err, user) => {
-        if (err) {
-            console.log(err.stack)
-            callback(err.stack)
-        }
+    sql.query(query,values, (err, result) => {
+        if (err)
+            setTimeout(callback, fakeDelay, err.stack, null);
         else {
-            callback(null, user[0])
+            setTimeout(callback, fakeDelay, null, result[0])
         }
     })
 }
@@ -48,7 +46,7 @@ exports.registerUser = function (username, password, email, callback) {
                     if (err)
                         setTimeout(callback, fakeDelay, err.stack, null);
                     else 
-                        setTimeout(callback, fakeDelay, null, result)
+                        setTimeout(callback, fakeDelay, null, result.insertId)
                 })
             } catch (err) {
                 console.log(err)

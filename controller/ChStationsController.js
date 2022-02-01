@@ -1,7 +1,6 @@
 'use strict';
 
-//const { resolve } = require('path/posix');
-//const { nextTick } = require('process');
+const { nextTick } = require('process');
 const url = require('url');
 
 const model = require('../model/chstations_model.js');
@@ -64,12 +63,12 @@ exports.ChargingStationInfo = function (req, res) {
 
 exports.UserInfo = function (req, res) {
     console.log("got into getUserInfo")
-    var user_id = 1;
+    var user_id = req.session.loggedUserId;
     model.getUserInfo(user_id, (err, result) => {
         if (err) console.log('error: ' + err)
         else {
             console.log('get response ' + result)
-            res.status(200).json({ evs: result });
+            res.status(200).json(result);
         }
     })
 }
