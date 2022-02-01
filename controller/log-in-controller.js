@@ -23,9 +23,9 @@ exports.doRegister = function (req, res) {
         var username = body.username
         var password = body.password
         var email = body.email
-        model.registerUser(username, password, email, (err, result, message) => {
+        model.registerUser(username, password, email, (err, result) => {
             if (err) console.error('registration error: ' + err);
-            req.session.loggedUserId = result;
+            // req.session.loggedUserId = message;
             res.status(200).json({ result: result });
         })
     })
@@ -42,8 +42,8 @@ exports.doLogin = function (req, res) {
         var username = body.username
         var password = body.password
         model.getUserByUsernamePassword(username,password, (err, user) => {
-            if (user != undefined) req.session.loggedUserId = user.player_id;
-            res.status(200).json({ result: result });
+            if (user != undefined) req.session.loggedUserId = user.user_id;
+            res.status(200).json({ result: user });
             
         })
     })

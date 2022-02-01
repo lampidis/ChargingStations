@@ -16,6 +16,8 @@ match(chose):
     case(5): res = requests.get(post_url + '/sim/getRandUser')
     case(6): res = requests.post(post_url + '/sim/startCharging', json=  {'type': 'CCS', 'chStation_id' : 1})
     case(7): res = requests.post(post_url + '/sim/endCharging', json=  {'type': 'CCS', 'chStation_id' : 1})
+    case(8): res = requests.post(post_url + '/login', json= {'username' : 'demo_user3', 'password' : 1234})
+    case(9): res = requests.post(post_url + '/register', json= {'username' : 'demo_user4', 'password' : 1234, 'email' : 'demo_user4@ev.com'})
 
 print(res.text)
 

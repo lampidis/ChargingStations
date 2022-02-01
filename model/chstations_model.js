@@ -1,75 +1,26 @@
 'use strict';
 const sql = require('./db_mysql.js');
-const bcrypt = require('bcrypt')
-
-//ψεύτικη καθυστέρηση που εξομοιώνει requests που αργούν να εξυπηρετηθούν
 const fakeDelay = 500
 
-//dummy, υπάρχει μόνο και μόνο για μοιάζει με το interface του mongo/mongoose model
 exports.connect = (callback) => {
     callback(null, true)
 }
 
 
 // Log in and Register 
-
-// exports.registerUserNoPass = function (username, callback) {
-//     // ελέγχουμε αν υπάρχει χρήστης με αυτό το username
-//     exports.getUserByUsername(username, async (err, userId) => {
-//         if (userId != undefined) {
-//             callback(null, null, { message: "Υπάρχει ήδη χρήστης με αυτό το όνομα" })
-//         } else {
-//             try {
-//                 const query = {
-//                     text: 'INSERT INTO public.user ( username, password) VALUES ( $1, $2) RETURNING id',
-//                     values: [username, ""],
-//                 }
-//                 sql.query(query, (err, result) => {
-//                     if (err)
-//                         setTimeout(callback, fakeDelay, err.stack, null);
-//                     else {
-//                         //το query επιστρέφει μια γραμμή με τα αποτελέσματα της εισαγωγής
-//                         //(αυτά που ζητήσαμε με το INSERT). Το "id" είναι το όνομα του πεδίου
-//                         //που αυξάνει αυτόματα. Η result.rows[0].id μας επιστρέφει την τιμή του.
-//                         setTimeout(callback, fakeDelay, null, result.rows[0].player_id)
-//                     }
-//                 })
-//             } catch (err) {
-//                 console.log(err)
-//                 callback(err)
-//             }
-//         }
-//     })
-// }
-exports.getUserByUsername = (username, callback) => {
-    const query = 'SELECT user_id, username, password FROM account WHERE username = ? ORDER BY username LIMIT 1'
-    const values = [username]
-    sql.query(query,values, (err, user) => {
+exports.getUserByUsernameMail = (username, mail, callback) => {
+    const query = 'SELECT user_id, username, password FROM account WHERE username = ? OR mail = ? ORDER BY username LIMIT 1'
+    const values = [username,mail]
+    sql.query(query, values, (err, user) => {
         if (err) {
             console.log(err.stack)
             callback(err.stack)
         }
         else {
-            callback(null, user.rows[0])
+            callback(null, user[0])
         }
     })
 }
-// exports.getUserById = (userId, callback) => {
-//     console.log("userId ", userId)
-//     const query = {
-//         text: 'SELECT player_id, username, password FROM player WHERE player_id = $1 ORDER BY player_id LIMIT 1',
-//         values: [userId],
-//     }
-//     sql.query(query, (err, user) => {
-//         if (err) {
-//             console.log(err.stack)
-//             callback(err.stack)
-//         }
-//         else {
-//             callback(null, user.rows[0])
-//         }
-//     })
-// }
 exports.getUserByUsernamePassword = (username, password, callback) => {
     
     const query = 'SELECT user_id, username, password FROM ACCOUNT WHERE username = ? AND password = ? ORDER BY username LIMIT 1'
@@ -80,23 +31,24 @@ exports.getUserByUsernamePassword = (username, password, callback) => {
             callback(err.stack)
         }
         else {
-            callback(null, user.rows[0])
+            callback(null, user[0])
         }
     })
 }
 exports.registerUser = function (username, password, email, callback) {
-    exports.getUserByUsername(username, async (err, userId) => {
+    exports.getUserByUsernameMail(username,email, async (err, userId) => {
+        console.log("userId: ", userId)
         if (userId != undefined) {
-            callback(null, null, { message: "Υπάρχει ήδη χρήστης με αυτό το όνομα" })
+            callback(null, { message: "Υπάρχει ήδη χρήστης με αυτό το όνομα ή email" })
         } else {
             try {
-                var query = 'INSERT INTO account (username, password, email) VALUES (?,?,?) RETURNING user_id'
-                var values = [username, password, email]
+                var query = 'INSERT INTO account (username, password, mail, account_type) VALUES (?,?,?,?)'
+                var values = [username, password, email, "basic"]
                 sql.query(query,values, (err, result) => {
                     if (err)
                         setTimeout(callback, fakeDelay, err.stack, null);
                     else 
-                        setTimeout(callback, fakeDelay, null, result[0].user_id)
+                        setTimeout(callback, fakeDelay, null, result)
                 })
             } catch (err) {
                 console.log(err)
