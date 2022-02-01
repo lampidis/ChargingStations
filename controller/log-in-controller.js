@@ -2,7 +2,7 @@
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 
-const model = require('../model/postgres/chstations_model.js');
+const model = require('../model/chstations_model.js');
 
 
 exports.showLogInForm = function (req, res) {
@@ -14,11 +14,16 @@ exports.showLogInForm = function (req, res) {
 
 exports.doRegister = function (req, res) {
     console.log("got into doRegister")
-    req.on('data', function (data) {
-        var userName = data.toString().split('&')[0].split('=')[1]
-        var password = data.toString().split('&')[1].split('=')[1]
-        var email = data.toString().split('&')[2].split('=')[1]
-        model.registerUser(userName, password, email, (err, result, message) => {
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        console.log(body)
+        var username = data.username
+        var password = data.password
+        var email = data.email
+        model.registerUser(username, password, email, (err, result, message) => {
             if (err) console.error('registration error: ' + err);
             else if (result) {
                 req.session.loggedUserId = result;
@@ -33,12 +38,14 @@ exports.doRegister = function (req, res) {
 
 exports.doLogin = function (req, res) {
     console.log("got into doLogin")
-    //Ελέγχει αν το username και το password είναι σωστά και εκτελεί την
-    //συνάρτηση επιστροφής authenticated
-    
-    req.on('data', function (data) {
-        var username = data.toString().split('&')[0].split('=')[1]
-        var password = data.toString().split('&')[1].split('=')[1]
+    let body = ''
+    req.on('data', chunk=>{
+        body = chunk.toString()
+    })
+    req.on('end', () => {
+        console.log(body)
+        var username = data.username
+        var password = data.password
         model.getUserByUsernamePassword(username,password, (err, user) => {
             if (user == undefined) {
                 res.render('login', {layout: 'loginlayout.hbs', message: 'Δε βρέθηκε αυτός ο χρήστης'});

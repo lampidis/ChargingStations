@@ -305,7 +305,7 @@ exports.addChargingType = function(type, callback) {
     })
 }
 exports.addChargingStation = function(name, lat, lon, schedule, restrooms, callback) {
-    var query = 'INSERT INTO CHARGING_STATION (`name`,`latitude`, `longitude`,`schedule`,`nearby_restrooms`) VALUES (?,?,?,?,?)'
+    var query = 'INSERT INTO CHARGING_STATION (`name`,`latitude`, `longitude`,`schedule`,`nearby_restrooms`) VALUES (?,?,?,?,?'
     var values = [name, lat, lon, schedule, restrooms]
     sql.query(query, values, (err, result) => {
         if (err){

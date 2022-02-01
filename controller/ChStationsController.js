@@ -4,7 +4,7 @@
 //const { nextTick } = require('process');
 const url = require('url');
 
-const model = require('../model/postgres/chstations_model.js');
+const model = require('../model/chstations_model.js');
 
 exports.Home = function (req, res) {
     console.log("got into Home")
