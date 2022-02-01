@@ -102,7 +102,7 @@ exports.getChargerInfo = function (chstation_id, callback) {
 
 exports.getUserInfo = (user_id, callback) => {
     console.log('user_id: ' + user_id)
-    const query = "SELECT * FROM ACCOUNT WHERE USER_ID = ?"
+    const query = "SELECT username, mail, password, account_type FROM ACCOUNT WHERE USER_ID = ?"
     const values = [user_id]
     sql.query(query, values, (err, result) => {
         if (err)
