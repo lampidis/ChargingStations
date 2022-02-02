@@ -41,5 +41,6 @@ router.post('/addCharger', ChStationsController.appendCharger)
 router.get('/sim/getRandUser' , ChStationsController.randUser)
 router.post('/sim/startCharging' , ChStationsController.startCharging)
 router.post('/sim/endCharging' , ChStationsController.endCharging)
+router.post('/sim/chargingData' , ChStationsController.chargingData)
 
 module.exports = router;
