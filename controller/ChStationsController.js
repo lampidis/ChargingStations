@@ -394,5 +394,6 @@ exports.chargingData = function (req, res) {
     })
     req.on('end', () => {
         console.log("chargingData body: ", body.toString())
+        res.status(200).json({ "response": body.toString() });
     })
 }
