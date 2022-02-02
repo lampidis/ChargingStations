@@ -390,10 +390,25 @@ exports.chargingData = function (req, res) {
     console.log("got into chargingData")
     let body = ''
     req.on('data', chunk => {
-        body = JSON.parse(chunk.toString())
+        body = chunk.toString()
     })
     req.on('end', () => {
         console.log("chargingData body: ", body.toString())
         res.status(200).json({ "response": body.toString() });
     })
 }
+
+
+
+
+// exports.chargingData = function (req, res) {
+//     console.log("got into chargingData")
+//     let body = ''
+//     req.on('data', chunk => {
+//         body = JSON.parse(chunk.toString())
+//     })
+//     req.on('end', () => {
+//         console.log("chargingData body: ", body.toString())
+//         res.status(200).json({ "response": body.toString() });
+//     })
+// }
