@@ -387,5 +387,12 @@ exports.endCharging = function (req, res) {
     })
 }
 exports.chargingData = function (req, res) {
-    return
+    console.log("got into chargingData")
+    let body = ''
+    req.on('data', chunk => {
+        body = JSON.parse(chunk.toString())
+    })
+    req.on('end', () => {
+        console.log("chargingData body: ", body.toString())
+    })
 }
